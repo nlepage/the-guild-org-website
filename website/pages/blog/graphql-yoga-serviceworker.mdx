@@ -1,0 +1,27 @@
+---
+title: Build a GraphQL server running in a service worker.
+authors: nlepage
+tags: [graphql, yoga, serviceworker]
+date: 2024-09-27
+description:
+  Run Yoga into a service worker, and create a feature rich GraphQL demonstration server client-side.
+#image: /blog-assets/graphql-yoga-worker/cover.jpg
+#thumbnail: /blog-assets/graphql-yoga-worker/thumbnail.jpg
+---
+
+I recently found myself trying to build an integration
+between a frontend framework and a GraphQL client,
+and while doing that I thought it would be nice
+to have a live demonstration for this integration.
+
+However, not wanting to host a GraphQL server,
+I started thinking about a solution relying only on
+a static hosting service, such as Github pages.
+
+I could use one of the free GraphQL APIs available out there,
+such as the [Rick and Morty API](https://rickandmortyapi.com/), but it has no mutations, 
+which is a huge limit to what can be demonstrated...
+
+Well, Yoga runs everywhere, right? So why not in a service worker?
+Service workers have WHATWG standard objects, [which Yoga understands](https://the-guild.dev/graphql/yoga-server/docs/integrations/z-other-environments),
+and [they can respond to HTTP requests](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/fetch_event)!
