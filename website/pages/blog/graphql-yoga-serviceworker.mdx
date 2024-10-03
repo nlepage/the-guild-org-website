@@ -4,7 +4,7 @@ authors: nlepage
 tags: [graphql, yoga, serviceworker]
 date: 2024-09-27
 description:
-  Run Yoga into a service worker, and create a feature rich GraphQL demonstration server client-side.
+  Run Yoga in a Service Worker, and create a feature rich GraphQL demonstration server client-side.
 #image: /blog-assets/graphql-yoga-worker/cover.jpg
 #thumbnail: /blog-assets/graphql-yoga-worker/thumbnail.jpg
 ---
@@ -12,16 +12,51 @@ description:
 I recently found myself trying to build an integration
 between a frontend framework and a GraphQL client,
 and while doing that I thought it would be nice
-to have a live demonstration for this integration.
+to have a live demonstration of this integration.
 
 However, not wanting to host a GraphQL server,
 I started thinking about a solution relying only on
 a static hosting service, such as Github pages.
 
 I could use one of the free GraphQL APIs available out there,
-such as the [Rick and Morty API](https://rickandmortyapi.com/), but it has no mutations, 
+such as the [Rick and Morty API](https://rickandmortyapi.com/), but it has no mutations,
 which is a huge limit to what can be demonstrated...
 
 Well, Yoga runs everywhere, right? So why not in a service worker?
 Service workers have WHATWG standard objects, [which Yoga understands](https://the-guild.dev/graphql/yoga-server/docs/integrations/z-other-environments),
 and [they can respond to HTTP requests](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/fetch_event)!
+
+## Making a "Service Sorker Compliant" GraphQL API
+
+In order to be able to run in a service worker,
+a GraphQL API needs to avoid having direct dependencies
+which aren’t available in the service worker environment.
+
+For example, an existing GraphQL API implemented for the Node.js environment
+might have a direct dependency to the 'node:fs' package,
+which isn’t available in a service worker.
+
+A good way to break such a direct dependency
+is to inject it through the GraphQL context:
+
+```js
+import fs from 'node:fs/promises';
+import { createYoga } from 'graphql-yoga';
+import { schema } from './schema.js';
+
+const yoga = createYoga({
+  context: () => ({
+    fs,
+  }),
+  schema,
+});
+```
+
+Thus the schema has only indirect dependencies,
+and might be used in another environment than Node.js.
+
+Then, if the schema uses `fs.readFile()`,
+a service worker compliant `fs` might be implemented,
+using the fetch API for example.
+
+## Running Yoga in a Service Worker
